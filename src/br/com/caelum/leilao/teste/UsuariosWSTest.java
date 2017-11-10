@@ -42,6 +42,37 @@ public class UsuariosWSTest {
 		Usuario usuario = path.getObject("usuario", Usuario.class);
 
 		assertEquals(esperado1, usuario);
-
 	}
-}
+	
+	@Test
+    public void deveAdicionarUmUsuario() {
+        Usuario joao = new Usuario("Joao da Silva", "joao@dasilva.com");
+
+        XmlPath retorno = 
+            given()
+                .header("Accept", "application/xml")
+                .contentType("application/xml")
+                .body(joao)
+            .expect()
+                .statusCode(200)
+            .when()
+                .post("/usuarios")
+            .andReturn()
+                .xmlPath();
+
+        Usuario resposta = retorno.getObject("usuario", Usuario.class);
+
+        assertEquals("Joao da Silva", resposta.getNome());
+        assertEquals("joao@dasilva.com", resposta.getEmail());
+        
+        // deletando aqui
+        given()
+        	.contentType("application/xml").body(resposta)
+        .expect()
+        	.statusCode(200)
+        .when()
+        	.delete("/usuarios/deleta")
+        .andReturn()
+        	.asString();
+        }
+    }
